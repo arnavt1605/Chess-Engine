@@ -43,11 +43,12 @@ def main():
                     playerClicks.append(sqSelected)    #Storing the user's moves as a list of tuples 
 
                 if len(playerClicks)==2:
+                    pass
                     
         drawGameState(screen,gs)
         clock.tick(max_fps)
         p.display.flip()
-    drawPieces(screen,board)
+    drawPieces(screen,gs.board)
 
 
 def drawGameState(screen,gs):
