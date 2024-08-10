@@ -34,7 +34,7 @@ def main():
                 location= p.mouse.get_pos()   #The location of the mouse at a particular instant
                 col= location[0]//sq_size
                 row= location[1]//sq_size
-                if sqSelected == (row.col):    #If user clicks the same square once again 
+                if sqSelected == (row,col):    #If user clicks the same square once again 
                     sqSelected=()
                     playerClicks=[]
 
@@ -43,7 +43,12 @@ def main():
                     playerClicks.append(sqSelected)    #Storing the user's moves as a list of tuples 
 
                 if len(playerClicks)==2:
-                    pass
+                    move= Chess_engine.Move(playerClicks[0], playerClicks[1], gs.board)
+                    print(move.getChessMove())
+                    gs. makeMove(move)
+                    sqSelected= ()
+                    playerClicks= []  #resetting the moves so that we can run the loop again and again.
+
                     
         drawGameState(screen,gs)
         clock.tick(max_fps)
