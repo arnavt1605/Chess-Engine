@@ -22,10 +22,28 @@ def main():
     gs= Chess_engine.GameState()
     loadImages()
     running=True
+
+    sqSelected=()
+    playerClicks=[]
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running=False
+
+            elif e.type == p.MOUSEBUTTONDOWN:
+                location= p.mouse.get_pos()   #The location of the mouse at a particular instant
+                col= location[0]//sq_size
+                row= location[1]//sq_size
+                if sqSelected == (row.col):    #If user clicks the same square once again 
+                    sqSelected=()
+                    playerClicks=[]
+
+                else:
+                    sqSelected=(row,col)
+                    playerClicks.append(sqSelected)    #Storing the user's moves as a list of tuples 
+
+                if len(playerClicks)==2:
+                    
         drawGameState(screen,gs)
         clock.tick(max_fps)
         p.display.flip()
@@ -40,7 +58,7 @@ def drawGameState(screen,gs):
 def drawBoard(screen):
     colors=[p.Color("white"), p.Color("gray")]   #two colors of the chessboard
     for r in range(dimension):         #traversing the rows
-        for c in range(dimension):   #travesring the columns
+        for c in range(dimension):   #traversing the columns
             color=colors[((r+c)%2)]    #very nice logic
             p.draw.rect(screen,color, p.Rect(r*sq_size , c*sq_size , sq_size , sq_size))
 
