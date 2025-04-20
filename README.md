@@ -1,2 +1,1 @@
-# Chess-Engine
-Making my first project in Python. (Hopefully I succeed)
+<p>Making a simple chess engine using python's pygame library</p>
