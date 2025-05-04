@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Chess Game (Python + Pygame) README</title>
-</head>
-<body>
+
     <h1>Chess Game (Python + Pygame)</h1>
     <p>
         A simple chess game implemented in Python using Pygame.<br>
@@ -41,7 +35,6 @@ Chess_engine.py   # Game logic and state management
 Chess_main.py     # Main UI and event loop
 images/           # Folder containing piece images (PNG)
 README.html       # Project documentation
-    </pre>
 
     <h2>What’s Next? (Future Updates)</h2>
     <ul>
@@ -58,5 +51,4 @@ README.html       # Project documentation
         <li><b>Game Over Screen:</b> Display a message when the game ends.</li>
     </ul>
 
-</body>
-</html>
+
