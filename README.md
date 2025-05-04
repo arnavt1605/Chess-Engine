@@ -37,7 +37,7 @@ This project features a graphical chessboard, interactive piece movement, and a 
   <li>README.html &mdash; Project documentation</li>
 </ul>
 
-<h2>What’s Next? (Future Updates)</h2>
+<h2>Future updates that I'm thinking of adding</h2>
 <ol>
   <li><b>Move Validation:</b> Only allow legal chess moves for each piece.</li>
   <li><b>Undo/Redo Moves:</b> Allow players to undo or redo moves using keyboard shortcuts.</li>
