@@ -52,15 +52,4 @@ This project features a graphical chessboard, interactive piece movement, and a 
   <li><b>Game Over Screen:</b> Display a message when the game ends.</li>
 </ol>
 
-<h2>Contributing</h2>
-<p>
-Pull requests and suggestions are welcome!<br>
-Feel free to fork this project and add your own features.
-</p>
 
-<h2>License</h2>
-<p>
-This project is open-source and free to use for educational purposes.
-</p>
-
-<p><i>Enjoy playing and developing your chess game!</i></p>
