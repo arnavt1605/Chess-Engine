@@ -1,13 +1,15 @@
 # Chess_main.py
 
 # Main driver file for user input and displaying the current state of the game
-#Will run this file to play the game
+# Will run this file to play the game
+
+#This code is okay works fine
 
 import pygame as p
 import Chess_engine
 
 width = height = 512
-dimension = 8  # 8x8 chessboard
+dimension = 8 # 8x8 chessboard
 sq_size = height // dimension
 max_fps = 15
 images = {}
@@ -20,13 +22,15 @@ def loadImages():
 def main():
     p.init()
     screen = p.display.set_mode((width, height))
-    clock = p.time.Clock()
+    clock = p.time.Clock()      #Not working right now
     screen.fill(p.Color("white"))
     gs = Chess_engine.GameState()
     loadImages()
     running = True
-    sqSelected = ()  # No square selected initially
+    sqSelected = () # No square selected initially
     playerClicks = []
+    validMoves = gs.getValidMoves()
+    moveMade = False
 
     while running:
         for e in p.event.get():
@@ -37,20 +41,34 @@ def main():
                 location = p.mouse.get_pos()
                 col = location[0] // sq_size
                 row = location[1] // sq_size
-
-                if sqSelected == (row, col):  # Deselect if same square
+                if sqSelected == (row, col): # Deselect if same square
                     sqSelected = ()
                     playerClicks = []
                 else:
                     sqSelected = (row, col)
                     playerClicks.append(sqSelected)
-
                 if len(playerClicks) == 2:
                     move = Chess_engine.Move(playerClicks[0], playerClicks[1], gs.board)
-                    print(move.getChessMove())
-                    gs.makeMove(move)
+                    for validMove in validMoves:
+                        if (move.startRow == validMove.startRow and move.startCol == validMove.startCol and
+                            move.endRow == validMove.endRow and move.endCol == validMove.endCol):
+                            gs.makeMove(validMove)
+                            moveMade = True
+                            break
                     sqSelected = ()
                     playerClicks = []
+
+            elif e.type == p.KEYDOWN:
+                if e.key == p.K_z: # Undo
+                    gs.undoMove()
+                    moveMade = True
+                if e.key == p.K_y: # Redo
+                    gs.redoMove()
+                    moveMade = True
+
+        if moveMade:
+            validMoves = gs.getValidMoves()
+            moveMade = False
 
         drawGameState(screen, gs, sqSelected)
         clock.tick(max_fps)
