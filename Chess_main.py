@@ -1,16 +1,15 @@
 import pygame as p
 import Chess_engine
 
-# Layout settings for the entire window
-WINDOW_WIDTH = 1920
-WINDOW_HEIGHT = 1080
-
-PANEL_WIDTH = 350  # left/right panels for moves and captures
-BOARD_SIZE = 1080  # the chessboard will be 1080x1080 
+# Layout settings
+BOARD_SIZE = 512
+PANEL_WIDTH = 250
+WINDOW_WIDTH = BOARD_SIZE + 2 * PANEL_WIDTH
+WINDOW_HEIGHT = BOARD_SIZE
 SQUARE_SIZE = BOARD_SIZE // 8
-CAPTURE_ICON_SIZE = 48
-MOVE_FONT_SIZE = 32
-MAX_MOVES_SHOWN = 22  # number of moves to show per side panel
+CAPTURE_ICON_SIZE = 32
+MOVE_FONT_SIZE = 20
+MAX_MOVES_SHOWN = 18
 
 images = {}
 small_images = {}
@@ -29,6 +28,11 @@ def main():
     screen = p.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     clock = p.time.Clock()
     gs = Chess_engine.GameState()
+    # Add captured piece tracking if not present
+    if not hasattr(gs, "capturedWhite"):
+        gs.capturedWhite = []
+    if not hasattr(gs, "capturedBlack"):
+        gs.capturedBlack = []
     loadImages()
     running = True
     sqSelected = ()
@@ -36,19 +40,16 @@ def main():
     validMoves = gs.getValidMoves()
     moveMade = False
 
-    # Calculate board top-left
-    board_x = (WINDOW_WIDTH - BOARD_SIZE) // 2
-    board_y = (WINDOW_HEIGHT - BOARD_SIZE) // 2
+    # Board top-left
+    board_x = PANEL_WIDTH
+    board_y = 0
 
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             elif e.type == p.MOUSEBUTTONDOWN:
-
-
                 x, y = e.pos
-                # Only register clicks inside the chessboard
                 if board_x <= x < board_x + BOARD_SIZE and board_y <= y < board_y + BOARD_SIZE:
                     col = (x - board_x) // SQUARE_SIZE
                     row = (y - board_y) // SQUARE_SIZE
@@ -80,10 +81,9 @@ def main():
             validMoves = gs.getValidMoves()
             moveMade = False
 
-        # Draw
         screen.fill(p.Color("gainsboro"))
-        drawSidePanel(screen, gs, left=True, board_y=board_y)
-        drawSidePanel(screen, gs, left=False, board_y=board_y)
+        drawSidePanel(screen, gs, left=True)
+        drawSidePanel(screen, gs, left=False)
         drawGameState(screen, gs, sqSelected, board_x, board_y)
         clock.tick(60)
         p.display.flip()
@@ -120,14 +120,13 @@ def drawPieces(screen, board, board_x, board_y):
                 y = board_y + r * SQUARE_SIZE
                 screen.blit(images[piece], p.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE))
 
-def drawSidePanel(screen, gs, left, board_y):
-    # Panel background
+def drawSidePanel(screen, gs, left=True):
     x0 = 0 if left else (WINDOW_WIDTH - PANEL_WIDTH)
     p.draw.rect(screen, p.Color("lightgray"), p.Rect(x0, 0, PANEL_WIDTH, WINDOW_HEIGHT))
     font = p.font.SysFont("Arial", MOVE_FONT_SIZE, False, False)
-    title_font = p.font.SysFont("Arial", MOVE_FONT_SIZE + 6, True)
+    title_font = p.font.SysFont("Arial", MOVE_FONT_SIZE + 4, True)
 
-    # Moves sides 
+    # Moves for this side
     moveLog = gs.moveLog
     moves = []
     if left:
@@ -139,24 +138,22 @@ def drawSidePanel(screen, gs, left, board_y):
         captured = getattr(gs, 'capturedWhite', [])
         title = "Black"
 
-    
+    # Draw player title
     text = title_font.render(title, True, p.Color("black"))
-    screen.blit(text, (x0 + 30, 30))
+    screen.blit(text, (x0 + 20, 18))
 
-    
-
-
+    # Draw moves (bottom-up, most recent at bottom)
     n = min(MAX_MOVES_SHOWN, len(moves))
     for i in range(n):
         move_str = moves[-n + i]
         move_text = font.render(str(len(moves) - n + i + 1) + ". " + move_str, True, p.Color("black"))
-        y = WINDOW_HEIGHT - 80 - (n - i) * (MOVE_FONT_SIZE + 6)
-        screen.blit(move_text, (x0 + 24, y))
+        y = WINDOW_HEIGHT - 100 - (n - i) * (MOVE_FONT_SIZE + 4)
+        screen.blit(move_text, (x0 + 18, y))
 
-    # Draw captured pieces 
-    y_capt = WINDOW_HEIGHT - CAPTURE_ICON_SIZE - 30
-    for i, piece in enumerate(captured[:10]):
-        screen.blit(small_images[piece], (x0 + 24 + i * (CAPTURE_ICON_SIZE + 8), y_capt))
+    # Draw captured pieces (icons) at the very bottom, left-to-right
+    y_capt = WINDOW_HEIGHT - CAPTURE_ICON_SIZE - 20
+    for i, piece in enumerate(captured[:8]):
+        screen.blit(small_images[piece], (x0 + 18 + i * (CAPTURE_ICON_SIZE + 8), y_capt))
 
 if __name__ == "__main__":
     main()
