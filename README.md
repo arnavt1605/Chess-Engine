@@ -36,7 +36,6 @@ This project features a graphical chessboard, interactive piece movement, and a 
   <li>Chess_engine.py &mdash; Game logic and state management</li>
   <li>Chess_main.py &mdash; Main UI and event loop</li>
   <li>images/ &mdash; Folder containing piece images (PNG)</li>
-  <li>README.html &mdash; Project documentation</li>
 </ul>
 
 <h2>Future updates that I'm thinking of adding</h2>
