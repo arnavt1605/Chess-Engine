@@ -23,7 +23,7 @@ This project features a graphical chessboard, interactive piece movement, and a 
     <code>pip install pygame</code>
   </li>
   <li>
-    <b>Prepare Piece Images:</b> Place chess piece images (wK.png, bQ.png, etc.) in an <b>images/</b> folder in the project directory.
+    <b>Prepare Piece Images:</b> Place chess piece images in an <b>images/</b> folder in the project directory.
   </li>
   <li>
     <b>Run the Game:</b><br>
