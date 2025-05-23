@@ -10,7 +10,6 @@ Naming scheme:
 - '--' represents an empty square
 """
 
-
 class GameState:
     def __init__(self):
         self.board = [
@@ -31,12 +30,15 @@ class GameState:
         self.castleRights = [True, True, True, True]
         self.whiteKingMoved = False
         self.blackKingMoved = False
-        self.whiteRookMoved = [False, False]  
+        self.whiteRookMoved = [False, False]
         self.blackRookMoved = [False, False]
 
         # En passant square
-        # If a pawn moves two squares forward, the square behind it is the en passant square
         self.enPassantSquare = ()
+
+        # For captured pieces
+        self.capturedWhite = []  # White pieces captured by Black
+        self.capturedBlack = []  # Black pieces captured by White
 
     def makeMove(self, move):
         self.board[move.startRow][move.startCol] = "--"
@@ -45,17 +47,22 @@ class GameState:
         self.whiteToMove = not self.whiteToMove
         self.redoStack.clear()
 
+        # Track captured pieces
+        if move.pieceCaptured != "--":
+            if move.pieceCaptured[0] == "w":
+                self.capturedWhite.append(move.pieceCaptured)
+            elif move.pieceCaptured[0] == "b":
+                self.capturedBlack.append(move.pieceCaptured)
+
         # Update castling rights and moved flags
         if move.pieceMoved == "wK":
             self.whiteKingMoved = True
             self.castleRights[0] = False
             self.castleRights[1] = False
-
         elif move.pieceMoved == "bK":
             self.blackKingMoved = True
             self.castleRights[2] = False
             self.castleRights[3] = False
-
         elif move.pieceMoved == "wR":
             if move.startRow == 7 and move.startCol == 0:
                 self.whiteRookMoved[0] = True
@@ -63,7 +70,6 @@ class GameState:
             elif move.startRow == 7 and move.startCol == 7:
                 self.whiteRookMoved[1] = True
                 self.castleRights[0] = False
-                
         elif move.pieceMoved == "bR":
             if move.startRow == 0 and move.startCol == 0:
                 self.blackRookMoved[0] = True
@@ -93,11 +99,12 @@ class GameState:
         if move.isEnPassantMove:
             if move.pieceMoved == "wp":
                 self.board[move.endRow + 1][move.endCol] = "--"
+                self.capturedBlack.append("bp")
             elif move.pieceMoved == "bp":
                 self.board[move.endRow - 1][move.endCol] = "--"
+                self.capturedWhite.append("wp")
 
         # Update en passant square
-        # If a pawn moves two squares forward, the square behind it is the en passant square
         if move.pieceMoved[1] == "p" and abs(move.startRow - move.endRow) == 2:
             self.enPassantSquare = ((move.startRow + move.endRow) // 2, move.startCol)
         else:
@@ -110,6 +117,15 @@ class GameState:
             self.board[move.startRow][move.startCol] = move.pieceMoved
             self.board[move.endRow][move.endCol] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove
+
+            # Undo captured pieces
+            if move.pieceCaptured != "--":
+                if move.pieceCaptured[0] == "w":
+                    if self.capturedWhite:
+                        self.capturedWhite.pop()
+                elif move.pieceCaptured[0] == "b":
+                    if self.capturedBlack:
+                        self.capturedBlack.pop()
 
             # Undo castling rook move
             if move.isCastleMove:
@@ -132,10 +148,12 @@ class GameState:
             if move.isEnPassantMove:
                 if move.pieceMoved == "wp":
                     self.board[move.endRow + 1][move.endCol] = "bp"
+                    if self.capturedBlack:
+                        self.capturedBlack.pop()
                 elif move.pieceMoved == "bp":
                     self.board[move.endRow - 1][move.endCol] = "wp"
-
-
+                    if self.capturedWhite:
+                        self.capturedWhite.pop()
 
     def redoMove(self):
         if len(self.redoStack) != 0:
@@ -170,8 +188,6 @@ class GameState:
                 if r == 6 and self.board[r-2][c] == "--":
                     moves.append(Move((r,c), (r-2,c), self.board))
             # Captures
-
-
             if r > 0 and c > 0:
                 if self.board[r-1][c-1][0] == "b":
                     moves.append(Move((r,c), (r-1,c-1), self.board))
@@ -187,8 +203,7 @@ class GameState:
                 moves.append(Move((r,c), (r+1,c), self.board))
                 if r == 1 and self.board[r+2][c] == "--":
                     moves.append(Move((r,c), (r+2,c), self.board))
-            
-
+            # Captures
             if r < 7 and c > 0:
                 if self.board[r+1][c-1][0] == "w":
                     moves.append(Move((r,c), (r+1,c-1), self.board))
