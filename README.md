@@ -41,14 +41,11 @@ This project features a graphical chessboard, interactive piece movement, and a 
 <h2>Future updates that I'm thinking of adding</h2>
 <ol>
   <li><b>Check and Checkmate Detection:</b> Notify players when their king is in check or checkmate.</li>
-  <li><b>Stalemate and Draw Detection:</b> Detect and handle stalemates, threefold repetition, and the fifty-move rule.</li>
+  <li><b>Stalemate and Draw Detection:</b> Detect and handle stalemates.</li>
   <li><b>Move History Display:</b> Show a list of previous moves on the screen.</li>
   <li><b>AI Opponent:</b> Add a simple AI to play against.</li>
   <li><b>Pawn Promotion:</b> Allow pawns to promote to another piece upon reaching the last rank.</li>
   <li><b>Castling and En Passant:</b> Implement special chess moves.</li>
-  <li><b>Sound Effects:</b> Play sounds for moves, captures, and checks.</li>
-  <li><b>Improved Graphics and Animations:</b> Add smooth piece movement and better visuals.</li>
-  <li><b>Game Over Screen:</b> Display a message when the game ends.</li>
 </ol>
 
 
