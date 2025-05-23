@@ -1,20 +1,17 @@
 import pygame as p
 import Chess_engine
 
-# Layout sizes
-board_size = 512
-panel_width = 160   # width for move/capture panels
-panel_padding = 12
-move_font_size = 18
-capture_icon_size = 32
-max_moves_shown = 16
+# Layout settings for the entire window
+WINDOW_WIDTH = 1920
+WINDOW_HEIGHT = 1080
 
-width = board_size + 2 * panel_width
-height = board_size
+PANEL_WIDTH = 350  # left/right panels for moves and captures
+BOARD_SIZE = 1080  # the chessboard will be 1080x1080 
+SQUARE_SIZE = BOARD_SIZE // 8
+CAPTURE_ICON_SIZE = 48
+MOVE_FONT_SIZE = 32
+MAX_MOVES_SHOWN = 22  # number of moves to show per side panel
 
-dimension = 8
-sq_size = board_size // dimension
-max_fps = 15
 images = {}
 small_images = {}
 
@@ -22,12 +19,14 @@ def loadImages():
     global images, small_images
     pieces = ['bR', 'bN', 'bB', 'bQ', 'bK', 'bp', 'wR', 'wN', 'wB', 'wQ', 'wK', 'wp']
     for piece in pieces:
-        images[piece] = p.image.load("images/" + piece + ".png")
-        small_images[piece] = p.transform.scale(images[piece], (capture_icon_size, capture_icon_size))
+        images[piece] = p.transform.smoothscale(
+            p.image.load("images/" + piece + ".png"), (SQUARE_SIZE, SQUARE_SIZE))
+        small_images[piece] = p.transform.smoothscale(
+            images[piece], (CAPTURE_ICON_SIZE, CAPTURE_ICON_SIZE))
 
 def main():
     p.init()
-    screen = p.display.set_mode((width, height))
+    screen = p.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     clock = p.time.Clock()
     gs = Chess_engine.GameState()
     loadImages()
@@ -37,16 +36,22 @@ def main():
     validMoves = gs.getValidMoves()
     moveMade = False
 
+    # Calculate board top-left
+    board_x = (WINDOW_WIDTH - BOARD_SIZE) // 2
+    board_y = (WINDOW_HEIGHT - BOARD_SIZE) // 2
+
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             elif e.type == p.MOUSEBUTTONDOWN:
+
+
                 x, y = e.pos
                 # Only register clicks inside the chessboard
-                if panel_width <= x < panel_width + board_size and y < board_size:
-                    col = (x - panel_width) // sq_size
-                    row = y // sq_size
+                if board_x <= x < board_x + BOARD_SIZE and board_y <= y < board_y + BOARD_SIZE:
+                    col = (x - board_x) // SQUARE_SIZE
+                    row = (y - board_y) // SQUARE_SIZE
                     if sqSelected == (row, col):
                         sqSelected = ()
                         playerClicks = []
@@ -75,84 +80,83 @@ def main():
             validMoves = gs.getValidMoves()
             moveMade = False
 
-        # Draw everything
+        # Draw
         screen.fill(p.Color("gainsboro"))
-        drawSidePanel(screen, gs, left=True)
-        drawSidePanel(screen, gs, left=False)
-        drawGameState(screen, gs, sqSelected)
-        clock.tick(max_fps)
+        drawSidePanel(screen, gs, left=True, board_y=board_y)
+        drawSidePanel(screen, gs, left=False, board_y=board_y)
+        drawGameState(screen, gs, sqSelected, board_x, board_y)
+        clock.tick(60)
         p.display.flip()
 
-def drawGameState(screen, gs, sqSelected):
-    drawBoard(screen)
-    highlightSquare(screen, sqSelected)
-    drawPieces(screen, gs.board)
+def drawGameState(screen, gs, sqSelected, board_x, board_y):
+    drawBoard(screen, board_x, board_y)
+    highlightSquare(screen, sqSelected, board_x, board_y)
+    drawPieces(screen, gs.board, board_x, board_y)
 
-def drawBoard(screen):
+def drawBoard(screen, board_x, board_y):
     colors = [p.Color("white"), p.Color("gray")]
-    for r in range(dimension):
-        for c in range(dimension):
+    for r in range(8):
+        for c in range(8):
             color = colors[((r + c) % 2)]
-            x = panel_width + c * sq_size
-            y = r * sq_size
-            p.draw.rect(screen, color, p.Rect(x, y, sq_size, sq_size))
+            x = board_x + c * SQUARE_SIZE
+            y = board_y + r * SQUARE_SIZE
+            p.draw.rect(screen, color, p.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE))
 
-def highlightSquare(screen, sqSelected):
+def highlightSquare(screen, sqSelected, board_x, board_y):
     if sqSelected != ():
-        s = p.Surface((sq_size, sq_size))
+        s = p.Surface((SQUARE_SIZE, SQUARE_SIZE))
         s.set_alpha(100)
         s.fill(p.Color('blue'))
-        x = panel_width + sqSelected[1] * sq_size
-        y = sqSelected[0] * sq_size
+        x = board_x + sqSelected[1] * SQUARE_SIZE
+        y = board_y + sqSelected[0] * SQUARE_SIZE
         screen.blit(s, (x, y))
 
-def drawPieces(screen, board):
-    for r in range(dimension):
-        for c in range(dimension):
+def drawPieces(screen, board, board_x, board_y):
+    for r in range(8):
+        for c in range(8):
             piece = board[r][c]
             if piece != "--":
-                x = panel_width + c * sq_size
-                y = r * sq_size
-                screen.blit(images[piece], p.Rect(x, y, sq_size, sq_size))
+                x = board_x + c * SQUARE_SIZE
+                y = board_y + r * SQUARE_SIZE
+                screen.blit(images[piece], p.Rect(x, y, SQUARE_SIZE, SQUARE_SIZE))
 
-def drawSidePanel(screen, gs, left=True):
+def drawSidePanel(screen, gs, left, board_y):
     # Panel background
-    x0 = 0 if left else (panel_width + board_size)
-    p.draw.rect(screen, p.Color("lightgray"), p.Rect(x0, 0, panel_width, height))
+    x0 = 0 if left else (WINDOW_WIDTH - PANEL_WIDTH)
+    p.draw.rect(screen, p.Color("lightgray"), p.Rect(x0, 0, PANEL_WIDTH, WINDOW_HEIGHT))
+    font = p.font.SysFont("Arial", MOVE_FONT_SIZE, False, False)
+    title_font = p.font.SysFont("Arial", MOVE_FONT_SIZE + 6, True)
 
-    font = p.font.SysFont("Arial", move_font_size, False, False)
-    # Moves for this side
+    # Moves sides 
     moveLog = gs.moveLog
     moves = []
     if left:
-        # White moves (even indices)
         moves = [moveLog[i].getChessMove() for i in range(0, len(moveLog), 2)]
-        captured = gs.capturedBlack if hasattr(gs, 'capturedBlack') else []
+        captured = getattr(gs, 'capturedBlack', [])
         title = "White"
     else:
-        # Black moves (odd indices)
         moves = [moveLog[i].getChessMove() for i in range(1, len(moveLog), 2)]
-        captured = gs.capturedWhite if hasattr(gs, 'capturedWhite') else []
+        captured = getattr(gs, 'capturedWhite', [])
         title = "Black"
 
-    # Draw player title
-    title_font = p.font.SysFont("Arial", 22, True)
-    title_text = title + " Moves"
-    text = title_font.render(title_text, True, p.Color("black"))
-    screen.blit(text, (x0 + panel_padding, panel_padding))
+    
+    text = title_font.render(title, True, p.Color("black"))
+    screen.blit(text, (x0 + 30, 30))
 
-    # Draw moves (from bottom up, most recent at bottom)
-    n = min(max_moves_shown, len(moves))
+    
+
+
+    n = min(MAX_MOVES_SHOWN, len(moves))
     for i in range(n):
         move_str = moves[-n + i]
         move_text = font.render(str(len(moves) - n + i + 1) + ". " + move_str, True, p.Color("black"))
-        y = height - panel_padding - (n - i) * (move_font_size + 2) - capture_icon_size - 12
-        screen.blit(move_text, (x0 + panel_padding, y))
+        y = WINDOW_HEIGHT - 80 - (n - i) * (MOVE_FONT_SIZE + 6)
+        screen.blit(move_text, (x0 + 24, y))
 
-    # Draw captured pieces (icons) at the very bottom, left-to-right
-    y_capt = height - capture_icon_size - panel_padding
-    for i, piece in enumerate(captured):
-        screen.blit(small_images[piece], (x0 + panel_padding + i * (capture_icon_size + 4), y_capt))
+    # Draw captured pieces 
+    y_capt = WINDOW_HEIGHT - CAPTURE_ICON_SIZE - 30
+    for i, piece in enumerate(captured[:10]):
+        screen.blit(small_images[piece], (x0 + 24 + i * (CAPTURE_ICON_SIZE + 8), y_capt))
 
 if __name__ == "__main__":
     main()
