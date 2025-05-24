@@ -14,6 +14,7 @@ This project features a graphical chessboard, interactive piece movement, and a 
   <li><b>Turn Handling:</b> The game enforces alternating turns between White and Black.</li>
   <li><b>Move Validation:</b> Only allow legal chess moves for each piece.</li>
   <li><b>Undo Moves:</b> Allow players to undo move using keyboard shortcuts (Ctrl+Z) </li>
+  <li><b>En Passant:</b> Implemented the special En Passant move</li>
 </ol>
 
 <h2>How to Run</h2>
@@ -45,7 +46,6 @@ This project features a graphical chessboard, interactive piece movement, and a 
   <li><b>Move History Display:</b> Show a list of previous moves on the screen.</li>
   <li><b>AI Opponent:</b> Add a simple AI to play against.</li>
   <li><b>Pawn Promotion:</b> Allow pawns to promote to another piece upon reaching the last rank.</li>
-  <li><b>Castling and En Passant:</b> Implement special chess moves.</li>
 </ol>
 
 
